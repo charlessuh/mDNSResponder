@@ -3619,6 +3619,12 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 		{
 			continue;
 		}
+
+		// Skip Hyper-V interfaces.
+
+		if (strstr(iaa->Description, "Hyper-V") != NULL) {
+			continue;
+		}
 		
 		// Add each address as a separate interface to emulate the way getifaddrs works.
 		
