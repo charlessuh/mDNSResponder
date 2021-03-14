@@ -66,6 +66,9 @@
     <ClCompile Include="..\..\mDNSCore\CryptoAlg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\mDNSShared\ClientRequests.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mDNSShared\CommonServices.h">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\mDNSCore\CryptoAlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\mDNSShared\ClientRequests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
