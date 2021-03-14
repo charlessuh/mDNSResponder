@@ -52,8 +52,6 @@
 #include	"GenLinkedList.h"
 #include	"DNSCommon.h"
 #include	"mDNSWin32.h"
-#include    "dnssec.h"
-#include    "nsec.h"
 
 #if 0
 #pragma mark == Constants ==
@@ -680,31 +678,6 @@ mDNSexport void mDNSPlatformQsort(void *base, int nel, int width, int (*compar)(
 	(void)width;
 	(void)compar;
 }
-
-// DNSSEC stub functions
-mDNSexport void VerifySignature(mDNS *const m, DNSSECVerifier *dv, DNSQuestion *q)
-	{
-	(void)m;
-	(void)dv;
-	(void)q;
-	}
-
-mDNSexport mDNSBool AddNSECSForCacheRecord(mDNS *const m, CacheRecord *crlist, CacheRecord *negcr, mDNSu8 rcode)
-	{
-	(void)m;
-	(void)crlist;
-	(void)negcr;
-	(void)rcode;
-	return mDNSfalse;
-	}
-
-mDNSexport void BumpDNSSECStats(mDNS *const m, DNSSECStatsAction action, DNSSECStatsType type, mDNSu32 value)
-    {
-    (void)m;
-    (void)action;
-    (void)type;
-    (void)value;
-    }
 
 // Proxy stub functions
 mDNSexport mDNSu8 *DNSProxySetAttributes(DNSQuestion *q, DNSMessageHeader *h, DNSMessage *msg, mDNSu8 *ptr, mDNSu8 *limit)
