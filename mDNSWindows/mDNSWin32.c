@@ -989,7 +989,9 @@ TCPSocket *
 mDNSPlatformTCPSocket
 	(
 	TCPSocketFlags		flags,
-	mDNSIPPort			*	port, 
+	mDNSAddr_Type		addrtype,
+	mDNSIPPort			*	port,
+	domainname*			hostname,
 	mDNSBool			useBackgroundTrafficClass
 	)
 {
@@ -1069,7 +1071,6 @@ mDNSPlatformTCPConnect
 	TCPSocket			*	sock,
 	const mDNSAddr		*	inDstIP, 
 	mDNSOpaque16 			inDstPort, 
-	domainname			*	hostname,
 	mDNSInterfaceID			inInterfaceID,
 	TCPConnectionCallback	inCallback, 
 	void *					inContext
@@ -1078,7 +1079,6 @@ mDNSPlatformTCPConnect
 	struct sockaddr_in	saddr;
 	mStatus				err		= mStatus_NoError;
 
-	DEBUG_UNUSED( hostname );
 	DEBUG_UNUSED( inInterfaceID );
 
 	if ( inDstIP->type != mDNSAddrType_IPv4 )
@@ -1617,9 +1617,9 @@ mDNSexport void mDNSPlatformWriteLogMsg( const char * ident, const char * msg, m
 
 	switch (loglevel) 
 	{
-		case MDNS_LOG_MSG:       type = EVENTLOG_ERROR_TYPE;		break;
-		case MDNS_LOG_OPERATION: type = EVENTLOG_WARNING_TYPE;		break;
-		case MDNS_LOG_SPS:       type = EVENTLOG_INFORMATION_TYPE;  break;
+		case MDNS_LOG_FAULT:     type = EVENTLOG_ERROR_TYPE;		break;
+		case MDNS_LOG_ERROR:     type = EVENTLOG_ERROR_TYPE;		break;
+		case MDNS_LOG_WARNING:   type = EVENTLOG_WARNING_TYPE;		break;
 		case MDNS_LOG_INFO:      type = EVENTLOG_INFORMATION_TYPE;	break;
 		case MDNS_LOG_DEBUG:     type = EVENTLOG_INFORMATION_TYPE;	break;
 		default:
@@ -1935,7 +1935,7 @@ SetDNSServers( mDNS *const m )
 	{
 		mDNSAddr addr;
 		err = StringToAddress( &addr, ipAddr->IpAddress.String );
-		if ( !err ) mDNS_AddDNSServer(m, mDNSNULL, mDNSInterface_Any, 0, &addr, UnicastDNSPort, kScopeNone, DEFAULT_UDNS_TIMEOUT, mDNSfalse, mDNSfalse, mDNSfalse, 0, mDNStrue, mDNStrue, mDNSfalse);
+		if ( !err ) mDNS_AddDNSServer(m, mDNSNULL, mDNSInterface_Any, 0, &addr, UnicastDNSPort, kScopeNone, DEFAULT_UDNS_TIMEOUT, mDNSfalse, mDNSfalse, mDNSfalse, mDNSfalse, 0, mDNStrue, mDNStrue, mDNSfalse);
 	}
 
 exit:
@@ -4737,7 +4737,7 @@ mDNSlocal void SetDomainSecret( mDNS * const m, const domainname * inDomain )
 			require_action( ptr, exit, err = mStatus_NoMemoryErr );
 		}
 
-		err = mDNS_SetSecretForDomain(m, ptr, &domain, &key, outSecret, NULL, NULL, FALSE );
+		err = mDNS_SetSecretForDomain(m, ptr, &domain, &key, outSecret, NULL, NULL );
 		require_action( err != mStatus_BadParamErr, exit, if (!foundInList ) mDNSPlatformMemFree( ptr ) );
 
 		debugf("Setting shared secret for zone %s with key %##s", outDomain, key.c);
