@@ -75,6 +75,7 @@
 
 #ifdef _WIN32
     #include <winsock2.h>
+    #include <ws2def.h>
     #include <ws2tcpip.h>
     #include <Iphlpapi.h>
     #include <process.h>
@@ -91,6 +92,7 @@ static const char kFilePathSep = '\\';
     #endif
     #define if_nametoindex if_nametoindex_win
     #define if_indextoname if_indextoname_win
+    #define MIN(a, b) __min(a, b)
 
 typedef PCHAR (WINAPI * if_indextoname_funcptr_t)(ULONG index, PCHAR name);
 typedef ULONG (WINAPI * if_nametoindex_funcptr_t)(PCSTR name);
