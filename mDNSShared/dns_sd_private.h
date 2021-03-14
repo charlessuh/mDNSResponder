@@ -94,6 +94,8 @@ DNSServiceErrorType DNSSD_API DNSServiceGetPID
 DNSSD_EXPORT
 DNSServiceErrorType DNSSD_API DNSServiceSetDefaultDomainForUser(DNSServiceFlags flags, const char *domain);
 
+#ifdef SPI_AVAILABLE
+
 SPI_AVAILABLE(macos(10.15.4), ios(13.2.2), watchos(6.2), tvos(13.2))
 DNSServiceErrorType DNSSD_API DNSServiceSleepKeepalive_sockaddr
 (
@@ -105,6 +107,8 @@ DNSServiceErrorType DNSSD_API DNSServiceSleepKeepalive_sockaddr
     DNSServiceSleepKeepaliveReply   callBack,
     void *                          context
 );
+
+#endif
 
 #define kDNSServiceCompPrivateDNS   "PrivateDNS"
 #define kDNSServiceCompMulticastDNS "MulticastDNS"
