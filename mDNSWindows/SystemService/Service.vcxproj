@@ -253,7 +253,6 @@ xcopy /I/Y "$(TargetDir)$(TargetName).pdb"                                      
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\mDNSCore\anonymous.c" />
     <ClCompile Include="..\..\mDNSCore\CryptoAlg.c" />
     <ClCompile Include="..\..\mDNSShared\DebugServices.c" />
     <ClCompile Include="..\..\mDNSCore\DNSCommon.c" />
@@ -289,7 +288,6 @@ xcopy /I/Y "$(TargetDir)$(TargetName).pdb"                                      
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\mDNSCore\anonymous.h" />
     <ClInclude Include="..\..\mDNSCore\CryptoAlg.h" />
     <ClInclude Include="..\..\mDNSShared\CommonServices.h" />
     <ClInclude Include="..\..\mDNSShared\DebugServices.h" />
