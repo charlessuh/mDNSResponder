@@ -51,9 +51,6 @@
     <ClCompile Include="..\..\mDNSWindows\Poll.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSCore\CryptoAlg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mDNSCore\DNSCommon.h">
@@ -90,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\mDNSWindows\Poll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\mDNSCore\anonymous.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\mDNSCore\CryptoAlg.h">
