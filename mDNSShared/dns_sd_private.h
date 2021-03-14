@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4 -*-
  * 
- * Copyright (c) 2015-2018 Apple Inc. All rights reserved.
+ * Copyright (c) 2015-2019 Apple Inc. All rights reserved.
  */
 
 #ifndef _DNS_SD_PRIVATE_H
@@ -8,9 +8,15 @@
 
 #include <dns_sd.h>
 
-// Private flags (kDNSServiceFlagsPrivateOne, kDNSServiceFlagsPrivateTwo, kDNSServiceFlagsPrivateThree, kDNSServiceFlagsPrivateFour) from dns_sd.h
+// Private flags (kDNSServiceFlagsPrivateOne, kDNSServiceFlagsPrivateTwo, kDNSServiceFlagsPrivateThree, kDNSServiceFlagsPrivateFour, kDNSServiceFlagsPrivateFive) from dns_sd.h
 enum
 {
+    kDNSServiceFlagsDenyConstrained        = 0x2000,
+    /*
+     * This flag is meaningful only for Unicast DNS queries. When set, the daemon will restrict
+     * DNS resolutions on interfaces defined as constrained for that request.
+     */
+
     kDNSServiceFlagsDenyCellular           = 0x8000000,
     /*
      * This flag is meaningful only for Unicast DNS queries. When set, the daemon will restrict
@@ -36,8 +42,7 @@ enum
      */
 };
 
-
-#if !DNSSD_NO_CREATE_DELEGATE_CONNECTION
+#if !defined(DNSSD_NO_CREATE_DELEGATE_CONNECTION) || !DNSSD_NO_CREATE_DELEGATE_CONNECTION
 /* DNSServiceCreateDelegateConnection()
  *
  * Parameters:
@@ -88,6 +93,18 @@ DNSServiceErrorType DNSSD_API DNSServiceGetPID
 
 DNSSD_EXPORT
 DNSServiceErrorType DNSSD_API DNSServiceSetDefaultDomainForUser(DNSServiceFlags flags, const char *domain);
+
+SPI_AVAILABLE(macos(10.15.4), ios(13.2.2), watchos(6.2), tvos(13.2))
+DNSServiceErrorType DNSSD_API DNSServiceSleepKeepalive_sockaddr
+(
+    DNSServiceRef *                 sdRef,
+    DNSServiceFlags                 flags,
+    const struct sockaddr *         localAddr,
+    const struct sockaddr *         remoteAddr,
+    unsigned int                    timeout,
+    DNSServiceSleepKeepaliveReply   callBack,
+    void *                          context
+);
 
 #define kDNSServiceCompPrivateDNS   "PrivateDNS"
 #define kDNSServiceCompMulticastDNS "MulticastDNS"
