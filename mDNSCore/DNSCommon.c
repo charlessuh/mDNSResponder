@@ -3779,17 +3779,27 @@ mDNSexport void DumpPacket(mStatus status, mDNSBool sent, const char *transport,
     if (!status) mDNS_snprintf(action, sizeof(action), sent ? "Sent" : "Received");
     else         mDNS_snprintf(action, sizeof(action), "ERROR %d %sing", status, sent ? "Send" : "Receiv");
 
+#if MDNSRESPONDER_SUPPORTS(APPLE, OS_LOG)
     LogRedact(MDNS_LOG_CATEGORY_DEFAULT, MDNS_LOG_INFO,
         "[Q%u] " PUB_S " " PUB_S " DNS Message %lu bytes from " PRI_IP_ADDR ":%d to " PRI_IP_ADDR ":%d via " PUB_S " (%p)",
-        mDNSVal16(msg->h.id), action, transport, (unsigned long)(end - (const mDNSu8 *)msg),
+        mDNSVal16(msg->h.id), action, transport, (unsigned long)(end - (const mDNSu8*)msg),
         srcaddr ? srcaddr : &zeroIPv4Addr, mDNSVal16(srcport), dstaddr ? dstaddr : &zeroIPv4Addr, mDNSVal16(dstport),
-#if MDNSRESPONDER_SUPPORTS(APPLE, OS_LOG)
+
         InterfaceNameForID(&mDNSStorage, interfaceID),
-#else
-        "interface",
-#endif
+
         interfaceID);
-    DNSMessageDumpToLog(msg, end);
+#else
+    LogRedact(MDNS_LOG_CATEGORY_DEFAULT, MDNS_LOG_INFO,
+        "[Q%u] " PUB_S " " PUB_S " DNS Message %lu bytes from " PRI_IP_ADDR ":%d to " PRI_IP_ADDR ":%d via " PUB_S " (%p)",
+        mDNSVal16(msg->h.id), action, transport, (unsigned long)(end - (const mDNSu8*)msg),
+        srcaddr ? srcaddr : &zeroIPv4Addr, mDNSVal16(srcport), dstaddr ? dstaddr : &zeroIPv4Addr, mDNSVal16(dstport),
+
+        "interface",
+
+        interfaceID);
+#endif
+
+        DNSMessageDumpToLog(msg, end);
 }
 
 // ***************************************************************************
