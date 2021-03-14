@@ -988,19 +988,18 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 TCPSocket *
 mDNSPlatformTCPSocket
 	(
-	mDNS			* const m,
 	TCPSocketFlags		flags,
 	mDNSIPPort			*	port, 
 	mDNSBool			useBackgroundTrafficClass
 	)
 {
+	mDNS* const m = &mDNSStorage;
 	TCPSocket *		sock    = NULL;
 	u_long				on		= 1;  // "on" for setsockopt
 	struct sockaddr_in	saddr;
 	int					len;
 	mStatus				err		= mStatus_NoError;
 
-	DEBUG_UNUSED( m );
 	DEBUG_UNUSED( useBackgroundTrafficClass );
 
 	require_action( flags == 0, exit, err = mStatus_UnsupportedErr );
@@ -1012,7 +1011,7 @@ mDNSPlatformTCPSocket
 	mDNSPlatformMemZero( sock, sizeof( TCPSocket ) );
 	sock->fd		= INVALID_SOCKET;
 	sock->flags		= flags;
-	sock->m			= m;
+	sock->m         = m;
 
 	mDNSPlatformMemZero(&saddr, sizeof(saddr));
 	saddr.sin_family		= AF_INET;
@@ -1285,8 +1284,9 @@ exit:
 //	mDNSPlatformUDPSocket
 //===========================================================================================================================
 
-mDNSexport UDPSocket* mDNSPlatformUDPSocket(mDNS *const m, const mDNSIPPort requestedport)
+mDNSexport UDPSocket* mDNSPlatformUDPSocket(const mDNSIPPort requestedport)
 {
+	mDNS* const m = &mDNSStorage;
 	UDPSocket*	sock	= NULL;
 	mDNSIPPort	port	= requestedport;
 	mStatus		err		= mStatus_NoError;
@@ -1480,15 +1480,13 @@ exit:
 	return( err );
 }
 
-mDNSexport void mDNSPlatformUpdateProxyList(mDNS *const m, const mDNSInterfaceID InterfaceID)
+mDNSexport void mDNSPlatformUpdateProxyList(const mDNSInterfaceID InterfaceID)
 	{
-	DEBUG_UNUSED( m );
 	DEBUG_UNUSED( InterfaceID );
 	}
 
-mDNSexport void mDNSPlatformSetAllowSleep(mDNS *const m, mDNSBool allowSleep, const char *reason)
+mDNSexport void mDNSPlatformSetAllowSleep(mDNSBool allowSleep, const char *reason)
 	{
-	DEBUG_UNUSED( m );
 	DEBUG_UNUSED( allowSleep );
 	DEBUG_UNUSED( reason );
 	}
@@ -1497,8 +1495,9 @@ mDNSexport void mDNSPlatformSetAllowSleep(mDNS *const m, mDNSBool allowSleep, co
 //	mDNSPlatformSendRawPacket
 //===========================================================================================================================
 
-mDNSexport void mDNSPlatformSendWakeupPacket(mDNS *const m, mDNSInterfaceID InterfaceID, char *ethaddr, char *ipaddr, int iteration)
+mDNSexport void mDNSPlatformSendWakeupPacket(mDNSInterfaceID InterfaceID, char *ethaddr, char *ipaddr, int iteration)
 {
+	mDNS* const m = &mDNSStorage;
 	unsigned char			mac[ 6 ];
 	unsigned char			buf[ 102 ];
 	char					hex[ 3 ] = { 0 };
@@ -1582,9 +1581,8 @@ mDNSexport void mDNSPlatformFormatTime(unsigned long te, mDNSu8 *buf, int bufsiz
 	if (bufsize) buf[0] = 0;
 	}
 
-mDNSexport void mDNSPlatformSetLocalAddressCacheEntry(mDNS *const m, const mDNSAddr *const tpa, const mDNSEthAddr *const tha, mDNSInterfaceID InterfaceID)
+mDNSexport void mDNSPlatformSetLocalAddressCacheEntry(const mDNSAddr *const tpa, const mDNSEthAddr *const tha, mDNSInterfaceID InterfaceID)
 	{
-	DEBUG_UNUSED( m );
 	DEBUG_UNUSED( tpa );
 	DEBUG_UNUSED( tha );
 	DEBUG_UNUSED( InterfaceID );
@@ -1611,7 +1609,6 @@ mDNSexport void mDNSPlatformWriteDebugMsg(const char *msg)
 
 mDNSexport void mDNSPlatformWriteLogMsg( const char * ident, const char * msg, mDNSLogLevel_t loglevel )
 	{
-	extern mDNS mDNSStorage;
 	int type;
 	
 	DEBUG_UNUSED( ident );
@@ -1666,8 +1663,10 @@ mDNSPlatformTLSTearDownCerts(void)
 mDNSlocal void SetDNSServers( mDNS *const m );
 mDNSlocal void SetSearchDomainList( void );
 
-mDNSexport mDNSBool mDNSPlatformSetDNSConfig(mDNS *const m, mDNSBool setservers, mDNSBool setsearch, domainname *const fqdn, DNameListElem **regDomains, DNameListElem **browseDomains, mDNSBool ackConfig)
+
+mDNSexport mDNSBool mDNSPlatformSetDNSConfig(mDNSBool setservers, mDNSBool setsearch, domainname *const fqdn, DNameListElem **regDomains, DNameListElem **browseDomains, mDNSBool ackConfig)
 {
+	mDNS* const m = &mDNSStorage;
 	(void) ackConfig;
 
 	if (setservers) SetDNSServers(m);
@@ -2049,8 +2048,9 @@ exit:
 //===========================================================================================================================
 
 mDNSexport mStatus
-mDNSPlatformGetPrimaryInterface( mDNS * const m, mDNSAddr * v4, mDNSAddr * v6, mDNSAddr * router )
+mDNSPlatformGetPrimaryInterface( mDNSAddr * v4, mDNSAddr * v6, mDNSAddr * router )
 {
+	mDNS* const m = &mDNSStorage;
 	IP_ADAPTER_INFO *	pAdapterInfo;
 	IP_ADAPTER_INFO *	pAdapter;
 	DWORD				bufLen;
@@ -2058,8 +2058,6 @@ mDNSPlatformGetPrimaryInterface( mDNS * const m, mDNSAddr * v4, mDNSAddr * v6, m
 	BOOL				found;
 	DWORD				index;
 	mStatus				err = mStatus_NoError;
-
-	DEBUG_UNUSED( m );
 
 	*v6 = zeroAddr;
 
@@ -2127,9 +2125,8 @@ mDNSexport void mDNSPlatformSendKeepalive(mDNSAddr *sadd, mDNSAddr *dadd, mDNSIP
 	(void) win;		// Unused
 }
 
-mDNSexport mStatus mDNSPlatformGetRemoteMacAddr(mDNS *const m, mDNSAddr *raddr)
+mDNSexport mStatus mDNSPlatformGetRemoteMacAddr(mDNSAddr *raddr)
 {
-	(void) m;		// Unused
 	(void) raddr;	// Unused
 
 	return mStatus_UnsupportedErr;
@@ -2156,9 +2153,8 @@ mDNSexport mStatus mDNSPlatformStoreOwnerOptRecord(char *ifname, DNSMessage *msg
 	return mStatus_UnsupportedErr;
 }
 
-mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNS *const m, mDNSAddr *laddr, mDNSIPPort *lport, mDNSAddr *raddr, mDNSIPPort *rport, mDNSTCPInfo *mti)
+mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNSAddr *laddr, mDNSIPPort *lport, mDNSAddr *raddr, mDNSIPPort *rport, mDNSTCPInfo *mti)
 {
-	(void) m;       // Unused
 	(void) laddr; 	// Unused
 	(void) raddr; 	// Unused
 	(void) lport; 	// Unused

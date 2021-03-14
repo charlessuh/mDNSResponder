@@ -143,6 +143,7 @@ struct ifaddrs
 };
 
 
+extern mDNS		mDNSStorage;
 extern void		InterfaceListDidChange( mDNS * const inMDNS );
 extern void		ComputerDescriptionDidChange( mDNS * const inMDNS );
 extern void		TCPIPConfigDidChange( mDNS * const inMDNS );

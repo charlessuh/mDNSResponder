@@ -2127,9 +2127,8 @@ udsSupportRemoveFDFromEventLoop( SocketRef fd, void *platform_data)		// Note: Th
 }
 
 
-mDNSexport void RecordUpdatedNiceLabel(mDNS *const m, mDNSs32 delay)
+mDNSexport void RecordUpdatedNiceLabel(mDNSs32 delay)
 	{
-	(void)m;
 	(void)delay;
 	// No-op, for now
 	}
