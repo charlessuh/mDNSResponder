@@ -2002,7 +2002,7 @@ UDSAcceptNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	
 	if ( gUDSCallback )
 	{
-		gUDSCallback( ( int ) gUDSSocket, 0, context );
+		gUDSCallback( ( int ) gUDSSocket, context );
 	}
 }
 
@@ -2021,7 +2021,7 @@ UDSReadNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 
 	if ( tcpSock )
 	{
-		tcpSock->userCallback( ( int ) tcpSock->fd, 0, tcpSock->userContext );
+		tcpSock->userCallback( ( int ) tcpSock->fd, tcpSock->userContext );
 	}
 }
 
