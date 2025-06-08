@@ -297,6 +297,9 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	OSVERSIONINFO osInfo;
 	BOOL ok;
 #endif
+	HKEY        key = NULL;
+	DWORD       dwSize;
+	DWORD		enabled = 0;
 	WSADATA		wsaData;
 	int			supported;
 	struct sockaddr_in	sa4;
@@ -335,6 +338,16 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	{
 		gEnableIPv6 = FALSE;
 	}
+
+	err = RegCreateKey(HKEY_LOCAL_MACHINE, kServiceParametersNode, &key);
+	if (err == ERROR_SUCCESS) {
+		dwSize = sizeof(DWORD);
+		err = RegQueryValueEx(key, L"EnableIPv6", NULL, NULL, (LPBYTE)&enabled, &dwSize);
+		if (err == ERROR_SUCCESS) {
+			gEnableIPv6 &= enabled;
+		}
+	}
+
 #else
 	inMDNS->p->osMajorVersion = 6;
 	inMDNS->p->osMinorVersion = 3;
