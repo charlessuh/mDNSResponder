@@ -132,6 +132,7 @@ static void CALLBACK	UDSAcceptNotification( SOCKET sock, LPWSANETWORKEVENTS even
 static void CALLBACK	UDSReadNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context );
 static void				CoreCallback(mDNS * const inMDNS, mStatus result);
 static mDNSu8			SystemWakeForNetworkAccess( LARGE_INTEGER * timeout );
+static bool				AllowSleepNow( mDNS * const m, mDNSs32 now );
 static OSStatus			GetRouteDestination(DWORD * ifIndex, DWORD * address);
 static OSStatus			SetLLRoute( mDNS * const inMDNS );
 static bool				HaveRoute( PMIB_IPFORWARDROW rowExtant, unsigned long addr, unsigned long metric );
@@ -1122,7 +1123,7 @@ static DWORD WINAPI	ServiceControlHandler( DWORD inControl, DWORD inEventType, L
 					err = translate_errno( ok, (OSStatus) GetLastError(), kUnknownErr );
 					check_noerr( err );
 
-					switch ( WaitForSingleObject( gPowerSuspendAckEvent, 5 * 1000 ) )
+					switch ( WaitForSingleObject( gPowerSuspendAckEvent, 30 * 1000 ) )
 					{
 						case WAIT_OBJECT_0:
 						{
@@ -1364,38 +1365,18 @@ static OSStatus	ServiceSpecificRun( int argc, LPTSTR argv[] )
 			}
 		}
 #endif
-		static mDNSs32 RepeatedBusy = 0;	
+		static mDNSs32 RepeatedBusy = 0;
 		mDNSs32 nextTimerEvent;
+		mDNSs32 now;
 
 		// Give the mDNS core a chance to do its work and determine next event time.
 
-		nextTimerEvent = udsserver_idle( mDNS_Execute( &gMDNSRecord ) - mDNS_TimeNow( &gMDNSRecord ) );
+		nextTimerEvent = udsserver_idle( mDNS_Execute( &gMDNSRecord ) );
 
-		if      ( nextTimerEvent < 0)					nextTimerEvent = 0;
-		else if ( nextTimerEvent > (0x7FFFFFFF / 1000))	nextTimerEvent = 0x7FFFFFFF / mDNSPlatformOneSecond;
-		else											nextTimerEvent = ( nextTimerEvent * 1000) / mDNSPlatformOneSecond;
-
-		// Debugging sanity check, to guard against CPU spins
-			
-		if ( nextTimerEvent > 0 )
-		{
-			RepeatedBusy = 0;
-		}
-		else
-		{
-			nextTimerEvent = 1;
-
-			if ( ++RepeatedBusy >= mDNSPlatformOneSecond )
-			{
-				ShowTaskSchedulingError( &gMDNSRecord );
-				RepeatedBusy = 0;
-			}
-		}
+		now = mDNS_TimeNow( &gMDNSRecord );
 
 		if ( gMDNSRecord.ShutdownTime )
 		{
-			mDNSs32 now = mDNS_TimeNow( &gMDNSRecord );
-
 			if ( mDNS_ExitNow( &gMDNSRecord, now ) )
 			{
 				mDNS_FinalExit( &gMDNSRecord );
@@ -1409,7 +1390,41 @@ static OSStatus	ServiceSpecificRun( int argc, LPTSTR argv[] )
 			}
 		}
 
-		err = mDNSPoll( nextTimerEvent );
+		if ( gMDNSRecord.SleepLimit )
+		{
+			if ( !AllowSleepNow( &gMDNSRecord, now ) )
+			{
+				if (nextTimerEvent - gMDNSRecord.SleepLimit >= 0 )
+				{
+					nextTimerEvent = gMDNSRecord.SleepLimit;
+				}
+			}
+		}
+
+		mDNSs32 ticks = nextTimerEvent - now;
+
+		if (ticks < 0)                           ticks = 0;
+		else if (ticks > (0x7FFFFFFF / 1000))    ticks = 0x7FFFFFFF / mDNSPlatformOneSecond;
+		else                                     ticks = (ticks * 1000) / mDNSPlatformOneSecond;
+
+		// Debugging sanity check, to guard against CPU spins
+
+		if (ticks > 0)
+		{
+			RepeatedBusy = 0;
+		}
+		else
+		{
+			ticks = 1;
+
+			if (++RepeatedBusy >= mDNSPlatformOneSecond)
+			{
+				ShowTaskSchedulingError(&gMDNSRecord);
+				RepeatedBusy = 0;
+			}
+		}
+
+		err = mDNSPoll( ticks );
 
 		if ( err )
 		{
@@ -1879,14 +1894,6 @@ PowerSuspendNotification( HANDLE event, void * context )
 	}
 
 	mDNSCoreMachineSleep(&gMDNSRecord, TRUE);
-
-	ok = SetEvent( gPowerSuspendAckEvent );
-
-	if ( !ok )
-	{
-		dlog( kDebugLevelError, DEBUG_NAME "PowerSuspendNotification: error while setting acknowledgement: %d", GetLastError() );
-		ReportStatus( EVENTLOG_ERROR_TYPE, "PowerSuspendNotification: error while setting acknowledgement: %d", GetLastError() );
-	}
 }
 
 
@@ -2353,6 +2360,34 @@ exit:
 	}
 
 	return ok;
+}
+
+
+//===========================================================================================================================
+//	AllowSleepNow
+//===========================================================================================================================
+
+static bool
+AllowSleepNow(mDNS* const m, mDNSs32 now)
+{
+	require( m->SleepLimit, exit );
+
+	BOOL ready = FALSE;
+	BOOL ok;
+
+	ready = mDNSCoreReadyForSleep(m, now);
+
+	if (!ready) return false;
+	
+    ok = SetEvent(gPowerSuspendAckEvent);
+
+    if (!ok)
+    {
+        dlog(kDebugLevelError, DEBUG_NAME "AllowSleepNow: error while setting acknowledgement: %d", GetLastError());
+        ReportStatus(EVENTLOG_ERROR_TYPE, "AllowSleepNow: error while setting acknowledgement: %d", GetLastError());
+    }
+exit:
+	return true;
 }
 
 

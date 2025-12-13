@@ -7653,7 +7653,7 @@ mDNSexport mDNSBool mDNSCoreReadyForSleep(mDNS *m, mDNSs32 now)
     // If we've not hit the sleep limit time, and it's not time for our next retry, we can skip these checks
     if (m->SleepLimit - now > 0 && m->NextScheduledSPRetry - now > 0) goto notready;
 
-    m->NextScheduledSPRetry = now + 0x40000000UL;
+    m->NextScheduledSPRetry = now + mDNSPlatformOneSecond;
 
 #if MDNSRESPONDER_SUPPORTS(COMMON, SPS_CLIENT)
     NetworkInterfaceInfo *intf;
