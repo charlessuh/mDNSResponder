@@ -50,6 +50,8 @@
 	#include	<netioapi.h>
 	#include	<iptypes.h>
 	#include	<powrprof.h>
+	#include    <WtsApi32.h>
+	#pragma     comment(lib, "Wtsapi32.lib")
 #endif
 
 #ifndef HeapEnableTerminationOnCorruption
@@ -1861,6 +1863,25 @@ PowerSuspendNotification( HANDLE event, void * context )
 	{
 		ok = SetWaitableTimer( gSPSWakeupEvent, &timeout, 0, NULL, NULL, TRUE );
 		check( ok );
+	}
+
+	DWORD count = 0;
+	PWTS_SESSION_INFO pSessionInfo = NULL;
+	if (WTSEnumerateSessions(WTS_CURRENT_SERVER_HANDLE, 0, 1, &pSessionInfo, &count)) {
+		for (DWORD i = 0; i < count; ++i) {
+			LPWSTR pBuffer = NULL;
+			DWORD bytesReturned = 0;
+			if (WTSQuerySessionInformation(WTS_CURRENT_SERVER_HANDLE, pSessionInfo[i].SessionId, WTSClientProtocolType, &pBuffer, &bytesReturned)) {
+				ULONG* protocolType = (ULONG*)pBuffer;
+				if (*protocolType == WTS_PROTOCOL_TYPE_RDP) {
+					if (!WTSDisconnectSession(WTS_CURRENT_SERVER_HANDLE, pSessionInfo[i].SessionId, TRUE)) {
+						ReportStatus(EVENTLOG_ERROR_TYPE, "WTSDisconnectSession failed with error code: %d", GetLastError());
+					}
+				}
+				WTSFreeMemory(pBuffer);
+			}
+		}
+		WTSFreeMemory(pSessionInfo);
 	}
 
 	mDNSCoreMachineSleep(&gMDNSRecord, TRUE);
