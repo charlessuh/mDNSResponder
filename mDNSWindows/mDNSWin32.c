@@ -3340,6 +3340,19 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 					if ( udpSock->ifd != NULL )
 					{
 						require_action( ipv4PacketInfo->ipi_ifindex == udpSock->ifd->index, exit, err = ( DWORD ) kMismatchErr );
+						iid = udpSock->ifd->interfaceInfo.InterfaceID;
+					}
+					else
+					{
+						mDNSInterfaceData *		ifd;
+						for ( ifd = udpSock->m->p->interfaceList; ifd; ifd = ifd->next )
+						{
+							if ( ifd->index == ipv4PacketInfo->ipi_ifindex )
+							{
+								iid = ifd->interfaceInfo.InterfaceID;
+								break;
+							}
+						}
 					}
 
 					dstAddr.type 				= mDNSAddrType_IPv4;
@@ -3354,6 +3367,19 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 					if ( udpSock->ifd != NULL )
 					{
 						require_action( ipv6PacketInfo->ipi6_ifindex == ( udpSock->ifd->index - kIPv6IfIndexBase ), exit, err = ( DWORD ) kMismatchErr );
+						iid = udpSock->ifd->interfaceInfo.InterfaceID;
+					}
+					else
+					{
+						mDNSInterfaceData *		ifd;
+						for ( ifd = udpSock->m->p->interfaceList; ifd; ifd = ifd->next )
+						{
+							if ( (ifd->index - kIPv6IfIndexBase) == ipv6PacketInfo->ipi6_ifindex )
+							{
+								iid = ifd->interfaceInfo.InterfaceID;
+								break;
+							}
+						}
 					}
 
 					dstAddr.type	= mDNSAddrType_IPv6;
@@ -3382,12 +3408,12 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	
 	if ( udpSock->ifd != NULL )
 	{
+		if (!iid) iid = udpSock->ifd->interfaceInfo.InterfaceID;
 		dlog( kDebugLevelChatty, DEBUG_NAME "    interface = %#a (index=0x%08X)\n", &udpSock->ifd->interfaceInfo.ip, udpSock->ifd->index );
 	}
 
 	dlog( kDebugLevelChatty, DEBUG_NAME "\n" );
 
-	iid = udpSock->ifd ? udpSock->ifd->interfaceInfo.InterfaceID : NULL;
 	end = ( (mDNSu8 *) &udpSock->packet ) + num;
 
 	mDNSCoreReceive( udpSock->m, &udpSock->packet, end, &srcAddr, srcPort, &dstAddr, dstPort, iid, 0 );
