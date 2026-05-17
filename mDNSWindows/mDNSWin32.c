@@ -1726,7 +1726,7 @@ mDNSPlatformDynDNSHostNameStatusChanged(const domainname *const dname, const mSt
 
 	check( strlen( p ) <= MAX_ESCAPED_DOMAIN_NAME );
 	name = kServiceParametersNode TEXT("\\DynDNS\\State\\HostNames");
-	err = RegCreateKey(HKEY_CURRENT_USER, name, &key);
+	err = RegCreateKey(HKEY_LOCAL_MACHINE, name, &key);
 	require_noerr( err, exit );
 
 	bStatus = ( status ) ? 0 : 1;
@@ -1802,7 +1802,7 @@ SetSearchDomainList( void )
 	HKEY				key;
 	mStatus				err;
 
-	err = RegCreateKey(HKEY_CURRENT_USER, TEXT("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"), &key);
+	err = RegCreateKey(HKEY_LOCAL_MACHINE, TEXT("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"), &key);
 	require_noerr( err, exit );
 
 	err = RegQueryString( key, "SearchList", &searchList, &searchListLen, NULL );
@@ -3630,6 +3630,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 			continue;
 		}
 		
+
 		// Add each address as a separate interface to emulate the way getifaddrs works.
 		
 		for( addrIndex = 0, addr = iaa->FirstUnicastAddress; addr; ++addrIndex, addr = addr->Next )
@@ -4604,7 +4605,7 @@ mDNSlocal void GetDDNSFQDN( domainname *const fqdn )
 
 	// Get info from Bonjour registry key
 
-	err = RegCreateKey(HKEY_CURRENT_USER, kServiceParametersNode TEXT("\\DynDNS\\Setup\\") kServiceDynDNSHostNames, &key);
+	err = RegCreateKey(HKEY_LOCAL_MACHINE, kServiceParametersNode TEXT("\\DynDNS\\Setup\\") kServiceDynDNSHostNames, &key);
 	require_noerr( err, exit );
 
 	err = RegQueryString( key, "", &name, &dwSize, &enabled );
@@ -4654,7 +4655,7 @@ mDNSlocal void GetDDNSConfig( DNameListElem ** domains, LPCSTR lpSubKey )
 
 	*domains = NULL;
 
-	err = RegCreateKey(HKEY_CURRENT_USER, lpSubKey, &key);
+	err = RegCreateKey(HKEY_LOCAL_MACHINE, lpSubKey, &key);
 	require_noerr( err, exit );
 
 	// Get information about this node
@@ -4880,7 +4881,7 @@ CheckFileShares( mDNS * const m )
 
 	require_action_quiet( m->AdvertiseLocalAddresses && !m->ShutdownTime, exit, err = kNoErr );
 
-	err = RegCreateKey(HKEY_CURRENT_USER, kServiceParametersNode L"\\Services\\SMB", &key);
+	err = RegCreateKey(HKEY_LOCAL_MACHINE, kServiceParametersNode L"\\Services\\SMB", &key);
 
 	if ( !err )
 	{
