@@ -227,7 +227,7 @@ int	Main( int argc, LPTSTR argv[] )
 
 	HeapSetInformation( NULL, HeapEnableTerminationOnCorruption, NULL, 0 );
 
-	debug_initialize( kDebugOutputTypeMetaConsole );
+	debug_initialize( kDebugOutputTypeWindowsEventLog );
 	debug_set_property( kDebugPropertyTagPrintLevel, kDebugLevelVerbose );
 
 	// Default to automatically starting the service dispatcher if no extra arguments are specified.
