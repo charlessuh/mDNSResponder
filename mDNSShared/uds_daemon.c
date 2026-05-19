@@ -3626,7 +3626,7 @@ mDNSlocal void resolve_result_callback(mDNS *const m, DNSQuestion *question, con
     request_state *const req = question->QuestionContext;
     const mDNSu32 name_hash = mDNS_DomainNameFNV1aHash(&question->qname);
     const mDNSBool isMDNSQuestion = mDNSOpaque16IsZero(question->TargetQID);
-    const mDNSBool is_split_awdl_query = (req->resolve_awdl && question->InterfaceID == AWDLInterfaceID);
+    const mDNSBool is_split_awdl_query = req->resolve_awdl && mDNSPlatformInterfaceIsAWDL(question->InterfaceID);
     UDS_LOG_ANSWER_EVENT(isMDNSQuestion ? MDNS_LOG_CATEGORY_MDNS : MDNS_LOG_CATEGORY_DEFAULT, MDNS_LOG_DEFAULT,
         req, question, answer, mDNSfalse, "DNSServiceResolve result", AddRecord);
 
