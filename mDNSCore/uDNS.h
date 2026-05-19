@@ -46,7 +46,7 @@ extern "C" {
 // rather than the default (1 second).
 #define MIN_UCAST_RETRANS_TIMEOUT (2 * mDNSPlatformOneSecond)
 
-#define DEFAULT_UPDATE_LEASE 7200
+#define DEFAULT_UPDATE_LEASE 60 * 60 * 12
 
 #define QuestionIntervalStep 3
 #define QuestionIntervalStep2 (QuestionIntervalStep*QuestionIntervalStep)

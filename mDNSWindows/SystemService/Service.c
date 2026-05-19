@@ -2343,7 +2343,7 @@ SystemWakeForNetworkAccess( LARGE_INTEGER * timeout )
 	// Calculate next wake up time
 
 	startTime		= time( NULL );					// Seconds since midnight January 1, 1970
-	nextWakeupTime	= startTime + ( 120 * 60 );		// 2 hours later
+	nextWakeupTime	= startTime + DEFAULT_UPDATE_LEASE;
 	
 	if ( gMDNSRecord.p->nextDHCPLeaseExpires < nextWakeupTime )
 	{
