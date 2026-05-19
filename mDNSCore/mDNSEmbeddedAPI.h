@@ -3169,6 +3169,7 @@ extern void       mDNSPlatformPreventSleep(mDNSu32 timeout, const char *reason);
 extern void       mDNSPlatformSendWakeupPacket(mDNSInterfaceID InterfaceID, char *EthAddr, char *IPAddr, int iteration);
 
 extern mDNSBool   mDNSPlatformInterfaceIsD2D(mDNSInterfaceID InterfaceID);
+extern mDNSBool   mDNSPlatformInterfaceIsAWDL(mDNSInterfaceID InterfaceID);
 extern mDNSBool   mDNSPlatformValidRecordForQuestion(const ResourceRecord *const rr, const DNSQuestion *const q);
 extern mDNSBool   mDNSPlatformValidRecordForInterface(const AuthRecord *rr, mDNSInterfaceID InterfaceID);
 extern mDNSBool   mDNSPlatformValidQuestionForInterface(const DNSQuestion *q, const NetworkInterfaceInfo *intf);

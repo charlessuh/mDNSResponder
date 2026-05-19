@@ -200,6 +200,7 @@ struct request_state
     transfer_state ts;              // [1]
     mDNSBool no_reply;              // don't send asynchronous replies to client
     mDNSu8 unresponsiveness_reports;
+    mDNSBool resolve_awdl;
 };
 mdns_compile_time_max_size_check(struct request_state, 304);
 

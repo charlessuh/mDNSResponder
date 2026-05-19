@@ -2196,6 +2196,14 @@ mDNSexport mDNSBool mDNSPlatformInterfaceIsD2D(mDNSInterfaceID InterfaceID)
 	return mDNSfalse;
 }
 
+mDNSexport mDNSBool mDNSPlatformInterfaceIsAWDL(mDNSInterfaceID InterfaceID)
+{
+	DEBUG_UNUSED(InterfaceID);
+
+	return mDNSfalse;
+}
+
+
 #if 0
 #pragma mark -
 #endif
