@@ -67,6 +67,7 @@ extern BOOL IsSystemServiceDisabled();
     #define sleep(X) Sleep((X) * 1000)
 
 static int g_initWinsock = 0;
+    #define LOG_ERR kDebugLevelError
     #define LOG_WARNING kDebugLevelWarning
     #define LOG_INFO kDebugLevelInfo
 static void syslog( int priority, const char * message, ...)
